@@ -4,6 +4,8 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.example.fudanPoem.dto.UserLoginDTO;
+import org.example.fudanPoem.entity.User;
 import org.example.fudanPoem.exception.UserBusinessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -27,7 +29,7 @@ public class LoginLimitAspect {
         if (args == null || args.length == 0) {
             throw new UserBusinessException(400, "登录参数不能为空");
         }
-        String userKey = "login:fail:" + args[0].toString(); // Redis键：前缀+用户名，避免key冲突
+        String userKey = "login:fail:" + ((UserLoginDTO)args[0]).getAccount(); // Redis键：前缀+用户名，避免key冲突
 
         Integer failCount = (Integer) redisTemplate.opsForValue().get(userKey);
         int maxFailTimes = 3;

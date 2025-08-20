@@ -1,12 +1,16 @@
 package org.example.fudanPoem.service.impl;
 
 import org.example.fudanPoem.annotation.UserOperationLog;
+import org.example.fudanPoem.dto.UserLoginDTO;
+import org.example.fudanPoem.dto.UserRegisterDTO;
+import org.example.fudanPoem.dto.UserSimpleDTO;
 import org.example.fudanPoem.enums.ErrorCode;
 import org.example.fudanPoem.entity.User;
 import org.example.fudanPoem.exception.UserBusinessException;
 import org.example.fudanPoem.mapper.UserMapper;
 import org.example.fudanPoem.service.IUserService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -58,12 +62,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
 
     @UserOperationLog("用户登录")
-    public User login(String loginInfo, String password) {
+    public UserSimpleDTO login(UserLoginDTO loginUser) {
         // 根据登录信息查询密码
-        User user = this.baseMapper.findByEmail(loginInfo);
+        String account = loginUser.getAccount();
+        String password = loginUser.getPassword();
+        User user = this.baseMapper.findByEmail(account);
         String storedPassword;
         if (user == null) {
-            user = this.baseMapper.findByUserName(loginInfo);
+            user = this.baseMapper.findByUserName(account);
             if (user == null) {
                 throw new UserBusinessException(ErrorCode.USER_NOT_FOUND.getCode(), ErrorCode.USER_NOT_FOUND.getMessage());
             }
@@ -76,7 +82,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         if (!passwordEncoder.matches(password, storedPassword)) {
             throw new UserBusinessException(ErrorCode.PASSWORD_ERROR.getCode(), ErrorCode.PASSWORD_ERROR.getMessage());
         }
-        return user;
+        UserSimpleDTO userSimpleDTO = new UserSimpleDTO();
+        BeanUtils.copyProperties(user,userSimpleDTO);
+        return userSimpleDTO;
     }
 
 }
