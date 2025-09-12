@@ -1,0 +1,51 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/fudanpoem?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+    username: root
+    password: 050805WOAINIwlf
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  redis:
+    host: 172.21.222.231
+    port: 6379
+    database: 0
+    password:
+    timeout: 3000ms
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 2
+        max-wait: 100ms
+
+  data:
+     mongodb:
+       uri: mongodb://localhost:27017/fudan_poem  # fudan_poem 是数据库名（自动创建）
+
+
+  application:
+    name: postservice
+
+#此处共用了user-service相关的jwt配置
+  config:
+    import: nacos:userservice-dev.properties
+
+  cloud:
+    nacos:
+      server-addr: localhost:8849
+      config:
+        file-extension: properties
+
+
+
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+logging:
+  level:
+    org.example: debug
+
+server:
+  port: 8081

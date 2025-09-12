@@ -1,0 +1,39 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/fudanpoem?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+    username: root
+    password: 050805WOAINIwlf
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  redis:
+    host: 172.21.222.231
+    port: 6379
+    database: 0
+    password:
+    timeout: 3000ms
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 2
+        max-wait: 100ms
+
+  application:
+    name: userservice
+  config:
+    import: nacos:${spring.application.name}-dev.properties
+  cloud:
+    nacos:
+      server-addr: localhost:8849
+      config:
+        file-extension: properties
+
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+logging:
+  level:
+    org.example: debug
+
