@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: chatservice
+  config:
+    import: nacos:userservice-dev.properties
+  cloud:
+    nacos:
+      server-addr: localhost:8849
+      config:
+        file-extension: properties
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/fudanpoem?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+    username: root
+    password: 050805WOAINIwlf
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    virtual-host: /
+    template:
+      mandatory: true
+    publisher-confirm-type: correlated
+    publisher-returns: true
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+logging:
+  level:
+    org.example: debug
+
+server:
+  port: 8082

@@ -19,6 +19,7 @@
         <module>user-service</module>
         <module>common-service</module>
         <module>post-service</module>
+        <module>chat-service</module>
     </modules>
 
     <properties>

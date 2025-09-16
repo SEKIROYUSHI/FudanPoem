@@ -7,12 +7,17 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.example.fudanPoem.common.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
 @Component
 public class JwtAuthFilter implements Filter {
+
+    // 新增：创建 AntPathMatcher 实例，用于通配符匹配
+    private static final AntPathMatcher pathMatcher = new AntPathMatcher();
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -23,8 +28,7 @@ public class JwtAuthFilter implements Filter {
     // 不需要验证Token的接口（白名单）
     private static final List<String> WHITE_LIST = Arrays.asList(
             "/fudanpoem/user/login",
-            "/fudanpoem/user/register"
-    );
+            "/fudanpoem/user/register");
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -36,11 +40,15 @@ public class JwtAuthFilter implements Filter {
         String requestURI = httpRequest.getRequestURI();
 
         // 2. 白名单接口直接放行
-        if (WHITE_LIST.contains(requestURI)) {
+        boolean isWhiteList = WHITE_LIST.stream()
+                .anyMatch(pattern -> pathMatcher.match(pattern, requestURI));
+
+        if (isWhiteList) {
             chain.doFilter(request, response);
             return;
         }
 
+        //todo:之后要加上Bearer，更符合行业规范
         String token = httpRequest.getHeader("Authorization");
 
         // 验证 Token 不存在时

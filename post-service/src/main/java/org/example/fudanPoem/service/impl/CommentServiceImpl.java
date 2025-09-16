@@ -3,7 +3,7 @@ package org.example.fudanPoem.service.impl;
 import org.bson.types.ObjectId;
 import org.example.fudanPoem.entity.Comment;
 import org.example.fudanPoem.mapper.CommentLikeMapper;
-import org.example.fudanPoem.mapper.CommentMapper;
+import org.example.fudanPoem.mapper.CommentRepo;
 import org.example.fudanPoem.service.ICommentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,7 @@ import java.util.Optional;
 public class CommentServiceImpl implements ICommentService {
 
     @Autowired
-    private CommentMapper commentMapper;  // 注入 MongoDB Repository
+    private CommentRepo commentRepo;  // 注入 MongoDB Repository
 
     @Autowired
     private CommentLikeMapper commentLikeMapper;
@@ -32,35 +32,35 @@ public class CommentServiceImpl implements ICommentService {
         if (comment.getParentId() != null) {
             comment.setChildComment(true);
         }
-        return commentMapper.save(comment);  // 调用 Repository 保存
+        return commentRepo.save(comment);  // 调用 Repository 保存
     }
 
     @Override
     public List<Comment> getCommentsByPostId(Long postId) {
-        return commentMapper.findByPostIdOrderByCreatedAtDesc(postId);
+        return commentRepo.findByPostIdOrderByCreatedAtDesc(postId);
     }
 
     @Override
     public List<Comment> getChildCommentsByParentId(String parentId) {
-        return commentMapper.findByParentIdOrderByCreatedAtAsc(parentId);
+        return commentRepo.findByParentIdOrderByCreatedAtAsc(parentId);
     }
 
     @Override
     public Comment likeComment(String commentId) {
         ObjectId objectCommentId = new ObjectId(commentId);
-        Optional<Comment> optionalComment = commentMapper.findById(objectCommentId);
+        Optional<Comment> optionalComment = commentRepo.findById(objectCommentId);
         if (optionalComment.isEmpty()) {
             throw new RuntimeException("评论不存在");
         }
         Comment comment = optionalComment.get();
         comment.setLikes(comment.getLikes() + 1);
-        return commentMapper.save(comment);
+        return commentRepo.save(comment);
     }
 
     @Override
     public void deleteComment(String commentId) {
         ObjectId objectCommentId = new ObjectId(commentId);
-        commentMapper.deleteById(objectCommentId);
+        commentRepo.deleteById(objectCommentId);
     }
 
 
@@ -79,8 +79,9 @@ public class CommentServiceImpl implements ICommentService {
             // ① 删除点赞记录
             int deleteRows = commentLikeMapper.cancelLike(commentId, userId);
             // ② 帖子点赞数-1
-            int updateRows = (int)commentMapper.unlikeComment(objectCommentId);
+            int updateRows = (int) commentRepo.unlikeComment(objectCommentId);
 
+            result = false;
             // 校验操作是否成功（可选，根据业务需要）
             if (deleteRows <= 0 || updateRows <= 0) {
                 throw new RuntimeException("取消点赞失败"); // 抛出异常，触发事务回滚
@@ -90,7 +91,7 @@ public class CommentServiceImpl implements ICommentService {
             // ① 添加点赞记录
             int insertRows =commentLikeMapper.addLike(commentId, userId);
             // ② 帖子点赞数+1
-            int updateRows = (int)commentMapper.likeComment(objectCommentId);
+            int updateRows = (int) commentRepo.likeComment(objectCommentId);
 
             // 校验操作是否成功
             if (insertRows <= 0 || updateRows <= 0) {
