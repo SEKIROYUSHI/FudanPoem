@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketSession;
@@ -24,7 +25,8 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     private final Map<Long, WebSocketSession> userSessionMap = new ConcurrentHashMap<>();
 
     // 3. JSON工具：后面要把消息转成JSON字符串发给前端（比如把ChatMessage对象转成JSON）
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    @Autowired
+    private final ObjectMapper objectMapper;
 
     /**
      * 4. 当用户成功建立WebSocket连接时，会自动调用这个方法

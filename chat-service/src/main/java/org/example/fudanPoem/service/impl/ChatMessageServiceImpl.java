@@ -50,7 +50,7 @@ public class ChatMessageServiceImpl extends ServiceImpl<ChatMessageMapper, ChatM
         message.setSenderId(senderId);
         message.setReceiverId(receiverId);
         message.setContent(content);
-        message.setSendTime(new Date());
+        message.setSendTime(LocalDateTime.now());
         message.setIsRead(0);
 
         this.save(message);

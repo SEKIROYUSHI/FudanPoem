@@ -30,12 +30,12 @@ public class ChatMessage implements Serializable {
     private String content;  // 用String类型：存储文本消息（如果有图片/文件，可存URL，这里先简化）
 
     // 5. 消息发送时间
-    private Date sendTime;
+    private LocalDateTime sendTime;
 
     // 6. 消息状态：0-未读，1-已读
     private Integer isRead;
 
     // 7. 记录创建时间（存入数据库的时间，和sendTime可能一致，也可能有延迟）
-    private Date createTime;
+    private LocalDateTime createTime;
 
 }

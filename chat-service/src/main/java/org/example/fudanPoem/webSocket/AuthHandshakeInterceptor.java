@@ -13,14 +13,12 @@ public class AuthHandshakeInterceptor implements HandshakeInterceptor {
     // 握手前执行：转移 userId
     @Override
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response,
-                                   WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
+                                   WebSocketHandler wsHandler, Map<String, Object> attributes)  {
         // 把 WebSocket 的请求转成普通 HTTP 请求，才能拿到之前存的 userId
         if (request instanceof ServletServerHttpRequest servletRequest) {
             HttpServletRequest httpRequest = servletRequest.getServletRequest();
-            // 从 HTTP 请求里取 userId（你 JWT 过滤器里存的）
             Long userId = (Long) httpRequest.getAttribute("userId");
             if (userId != null) {
-                // 把 userId 存到 WebSocketSession 的属性里
                 attributes.put("userId", userId);
                 return true; // 允许握手
             }
