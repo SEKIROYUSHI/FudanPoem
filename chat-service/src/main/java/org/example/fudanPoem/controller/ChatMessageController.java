@@ -31,22 +31,15 @@ public class ChatMessageController {
 
     @PostMapping("/send")
     public Result<Void> sendMessage(HttpServletRequest request, @Valid @RequestBody MessageRequestDTO messageRequest){
-        try {
             Long senderId = (Long)request.getAttribute("userId");
             Long receiverId = messageRequest.getReceiverId();
             String content = messageRequest.getContent();
             chatMessageService.sendMessage(senderId, receiverId, content);
             return Result.success(null);
-        } catch (IllegalArgumentException e) {
-            return Result.error(e.getMessage());  // 失败：返回错误消息
-        } catch (Exception e) {
-            return Result.error("发送失败：" + e.getMessage());
-        }
     }
 
     @GetMapping("/history")
     public Result<IPage<ChatMessage>> getChatHistory(HttpServletRequest request, @RequestBody HistoryQueryDTO historyQueryDTO) {
-        try {
             // 调用Service层的查询方法，获取分页数据
             Long userId = (Long)request.getAttribute("userId");
             Long otherId = historyQueryDTO.getOtherId();
@@ -54,9 +47,6 @@ public class ChatMessageController {
             Integer pageSize = historyQueryDTO.getPageSize();
             IPage<ChatMessage> page = chatMessageService.getChatHistory(userId, otherId, pageNum, pageSize);
             return Result.success(page);  // 成功：返回分页数据（包含总条数、当前页消息列表）
-        } catch (Exception e) {
-            return Result.error("查询失败：" + e.getMessage());
-        }
     }
 
 
@@ -70,12 +60,9 @@ public class ChatMessageController {
          @RequestParam Long receiverId  // 对方用户ID（消息发送者）
     ) {
         Long senderId = (Long)request.getAttribute("userId"); // 自己的用户ID（消息接收者）
-        try {
-            int count = chatMessageService.markUnreadAsRead(senderId, receiverId);
-            return Result.success(count);
-        } catch (Exception e) {
-            return Result.error("标记失败：" + e.getMessage());
-        }
+
+        int count = chatMessageService.markUnreadAsRead(senderId, receiverId);
+        return Result.success(count);
     }
 
 
@@ -89,12 +76,8 @@ public class ChatMessageController {
            HttpServletRequest request
     ) {
         Long userId = (Long)request.getAttribute("userId"); // 自己的用户ID（消息接收者）
-        try {
             // 调用Service层的查询方法，获取未读总数
             long count = chatMessageService.getUnreadCount(userId);
             return Result.success(count);  // 成功：返回未读消息数
-        } catch (Exception e) {
-            return Result.error("查询失败：" + e.getMessage());
-        }
     }
 }

@@ -21,7 +21,6 @@ public class WebSocketConfig implements org.springframework.web.socket.config.an
 
     /**
      * 注册WebSocket的“连接规矩”：前端怎么连、用哪个处理器处理连接
-     * （处理器现在还没写，先留空，下一步再补）
      */
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {

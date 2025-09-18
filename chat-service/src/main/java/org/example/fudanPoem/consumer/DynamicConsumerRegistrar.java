@@ -39,11 +39,9 @@ public class DynamicConsumerRegistrar {
     // 初始化时设置一次全局监听器（只执行一次）
     @PostConstruct
     public void initGlobalListener() {
-        // 改用 ChannelAwareMessageListener，支持手动确认
         ChannelAwareMessageListener globalListener = new ChannelAwareMessageListener() {
             @Override
             public void onMessage(Message amqpMessage, Channel channel) throws Exception {
-                // 1. 反序列化消息（从RabbitMQ的Message转为业务对象ChatMessage）
                 ChatMessage message = (ChatMessage) jackson2JsonMessageConverter.fromMessage(amqpMessage);
                 Long receiverId = message.getReceiverId();
                 Long senderId = message.getSenderId();
@@ -73,7 +71,6 @@ public class DynamicConsumerRegistrar {
                 } else {
                     log.info("用户[" + receiverId + "]的 WebSocket 未连接，消息保留在队列");
                     // 4. 用户离线：不确认消息，也不拒绝（消息会留在队列，等待用户上线后重新消费）
-                    // 注意：此时不要调用basicAck或basicNack，消息会保持“未确认”状态
                 }
             }
         };

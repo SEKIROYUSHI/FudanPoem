@@ -7,6 +7,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.example.fudanPoem.component.QueueManager;
 import org.example.fudanPoem.entity.ChatMessage;
+import org.example.fudanPoem.enums.ErrorCode;
+import org.example.fudanPoem.exception.ChatBusinessException;
 import org.example.fudanPoem.mapper.ChatMessageMapper;
 import org.example.fudanPoem.service.ChatMessageService;
 import org.springframework.amqp.AmqpException;
@@ -66,11 +68,11 @@ public class ChatMessageServiceImpl extends ServiceImpl<ChatMessageMapper, ChatM
             if (isAck) {
                 log.info("消息[{}]发送成功（已被交换机接收）：{} -> {}：{}", messageId, senderId, receiverId, content);
             } else {
-                throw new RuntimeException("消息[" + messageId + "]未被交换机接收，发送失败");
+                throw new ChatBusinessException(ErrorCode.CHAT_MESSAGE_ACK_FAILED.getCode(),ErrorCode.CHAT_MESSAGE_ACK_FAILED.getMessage());
             }
         } catch (Exception e) {
             log.error("消息[" + messageId + "]发送失败！", e);
-            throw new RuntimeException("发送消息失败：" + e.getMessage());
+            throw new ChatBusinessException(ErrorCode.CHAT_MESSAGE_EXCHANGE_FAILED.getCode(),ErrorCode.CHAT_MESSAGE_EXCHANGE_FAILED.getMessage());
         }
     }
 

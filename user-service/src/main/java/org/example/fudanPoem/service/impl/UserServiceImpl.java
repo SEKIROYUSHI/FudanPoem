@@ -64,7 +64,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         } else {
             throw new UserBusinessException(ErrorCode.UNKNOWN_ERROR.getCode(), ErrorCode.UNKNOWN_ERROR.getMessage());
         }
-        //此处能否拿到id存疑
+
         RegisterEvent event = new RegisterEvent(user.getId(),LocalDateTime.now());
 
         String routingKey = "event.user.register"; // 路由键，表示用户注册事件
