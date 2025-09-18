@@ -6,6 +6,7 @@ import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -16,12 +17,10 @@ public class QueueManager {
     // 注入交换机（确保交换机已存在，可通过@Bean提前创建）
     private final DirectExchange chatExchange;
 
-    private final DynamicConsumerRegistrar consumerRegistrar;
 
-    public QueueManager(RabbitAdmin rabbitAdmin,@Qualifier("chatExchange") DirectExchange chatExchange,DynamicConsumerRegistrar consumerRegistrar) {
+    public QueueManager(RabbitAdmin rabbitAdmin,@Qualifier("chatExchange") DirectExchange chatExchange) {
         this.rabbitAdmin = rabbitAdmin;
         this.chatExchange = chatExchange;
-        this.consumerRegistrar = consumerRegistrar;
     }
 
     // 核心方法：为指定用户动态创建队列并绑定到交换机
@@ -42,7 +41,5 @@ public class QueueManager {
                 .with(queueName); // 路由键=队列名，和发送消息时的routingKey一致
 
         rabbitAdmin.declareBinding(binding);
-
-        consumerRegistrar.registerConsumerForUser(userId);
     }
 }

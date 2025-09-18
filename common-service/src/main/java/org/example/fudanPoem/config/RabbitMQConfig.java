@@ -7,6 +7,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.core.AcknowledgeMode;
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.ReturnedMessage;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
@@ -110,12 +111,6 @@ public class RabbitMQConfig {
         container.setConnectionFactory(connectionFactory);
         return factory;
     }
-
-    @Bean(name = "chatExchange")
-    public DirectExchange chatExchange() {
-        return new DirectExchange("chat.exchange", false, false);
-    }
-
     @Bean
     public RabbitAdmin rabbitAdmin(ConnectionFactory connectionFactory) {
         // 传入连接工厂，创建RabbitAdmin实例
@@ -125,12 +120,10 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public SimpleMessageListenerContainer simpleMessageListenerContainer(
-            ConnectionFactory connectionFactory,
-            MessageConverter jackson2JsonMessageConverter
-    ) {
+    public SimpleMessageListenerContainer simpleMessageListenerContainer(ConnectionFactory connectionFactory) {
         SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
+        container.setAcknowledgeMode(AcknowledgeMode.MANUAL);
         return container;
     }
 }

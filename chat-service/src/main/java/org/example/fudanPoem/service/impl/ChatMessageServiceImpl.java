@@ -13,6 +13,7 @@ import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,10 +35,6 @@ public class ChatMessageServiceImpl extends ServiceImpl<ChatMessageMapper, ChatM
     @Autowired
     private QueueManager queueManager;
 
-    public ChatMessageServiceImpl(QueueManager queueManager, RabbitTemplate rabbitTemplate) {
-        this.queueManager = queueManager;
-        this.rabbitTemplate = rabbitTemplate;
-    }
 
 
     /**
@@ -58,10 +55,6 @@ public class ChatMessageServiceImpl extends ServiceImpl<ChatMessageMapper, ChatM
         // 创建唯一的消息ID（用UUID，保证全局唯一）
         String messageId = UUID.randomUUID().toString();
         CorrelationData correlationData = new CorrelationData(messageId);
-
-        // 确保接收者的队列存在（幂等创建，不会重复建）
-        queueManager.createQueueIfNotExists(receiverId);
-
 
         // 路由键格式："chat.user." + 接收者ID（方便接收者的队列监听）
         try {

@@ -1,19 +1,24 @@
 package org.example.fudanPoem.service.impl;
 
 import org.example.fudanPoem.annotation.UserOperationLog;
+import org.example.fudanPoem.config.EventExchangeConfig;
 import org.example.fudanPoem.dto.UserLoginDTO;
 import org.example.fudanPoem.dto.UserRegisterDTO;
 import org.example.fudanPoem.dto.UserSimpleDTO;
 import org.example.fudanPoem.enums.ErrorCode;
 import org.example.fudanPoem.entity.User;
+import org.example.fudanPoem.event.RegisterEvent;
 import org.example.fudanPoem.exception.UserBusinessException;
 import org.example.fudanPoem.mapper.UserMapper;
 import org.example.fudanPoem.service.IUserService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -29,6 +34,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
 
     @Override
     @UserOperationLog("用户注册")
@@ -56,6 +64,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         } else {
             throw new UserBusinessException(ErrorCode.UNKNOWN_ERROR.getCode(), ErrorCode.UNKNOWN_ERROR.getMessage());
         }
+        //此处能否拿到id存疑
+        RegisterEvent event = new RegisterEvent(user.getId(),LocalDateTime.now());
+
+        String routingKey = "event.user.register"; // 路由键，表示用户注册事件
+        rabbitTemplate.convertAndSend(
+                EventExchangeConfig.EVENT_EXCHANGE_NAME, // 公共事件交换机
+                routingKey, // 路由键
+                event // 事件内容
+        );
 
         return result;
     }
